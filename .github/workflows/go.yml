@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.19]
+        go-version: [1.21]  # 更新到更新的Go版本
         arch: [arm64, arm]
         include:
           - arch: arm
@@ -26,10 +26,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # 使用最新版本
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5  # 使用最新版本
       with:
         go-version: ${{ matrix.go-version }}
 
@@ -39,7 +39,7 @@ jobs:
         GOOS=linux GOARCH=${{ matrix.goarch }} ${{ matrix.arch == 'arm' && format('GOARM={0}', matrix.goarm) || '' }} go build -o output/mmdb2csv-${{ matrix.arch }}
 
     - name: Upload binary
-      uses: actions/upload-artifact@v3  # 已更新到v3
+      uses: actions/upload-artifact@v4  # 更新到v4版本
       with:
         name: mmdb2csv-${{ matrix.arch }}
         path: output/mmdb2csv-${{ matrix.arch }}
