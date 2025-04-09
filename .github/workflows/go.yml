@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
@@ -15,23 +16,31 @@ jobs:
     strategy:
       matrix:
         go-version: [1.19]
-        platform: [linux/arm64]
+        arch: [arm64, arm]
+        include:
+          - arch: arm
+            goarch: arm
+            goarm: 7
+          - arch: arm64
+            goarch: arm64
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.go-version }}
 
     - name: Build binary
       run: |
-        GOOS=linux GOARCH=arm64 go build -o output/mmdb2csv
+        mkdir -p output
+        GOOS=linux GOARCH=${{ matrix.goarch }} ${{ matrix.arch == 'arm' && format('GOARM={0}', matrix.goarm) || '' }} go build -o output/mmdb2csv-${{ matrix.arch }}
 
     - name: Upload binary
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3  # 已更新到v3
       with:
-        name: mmdb2csv-arm64
-        path: output/mmdb2cs
+        name: mmdb2csv-${{ matrix.arch }}
+        path: output/mmdb2csv-${{ matrix.arch }}
+        retention-days: 7
